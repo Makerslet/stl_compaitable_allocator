@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <iterator>
 
-template<typename T>
+template<typename T, typename Alloc = std::allocator<T>>
 class custom_forward_list {
 
     struct list_node {
@@ -16,6 +16,7 @@ class custom_forward_list {
     };
 
     using node_ptr = list_node*;
+    using node_alloc = typename std::allocator_traits<Alloc>::template rebind_alloc<list_node>;
 
 public:
 
@@ -90,6 +91,12 @@ public:
         node_ptr _current_node;
     };
 
+    custom_forward_list() :_size(0)  {
+        node_ptr tmp = create_node();
+        _begin = tmp;
+        _end = tmp;
+    }
+
     T& front() {
         return static_cast<T&>(
                     const_cast<custom_forward_list<T>*>(this)->front());
@@ -102,16 +109,10 @@ public:
         return _begin->object;
     }
 
-    custom_forward_list() :_size(0)  {
-        node_ptr tmp = new list_node();
-        _begin = tmp;
-        _end = tmp;
-    }
-
     // TODO: implement move push front
     // TODO implement emplace_push_front
     void push_front(const T& value) {
-        node_ptr new_front = new list_node(value);
+        node_ptr new_front = create_node(value);
         new_front->next = _begin;
         _begin = new_front;
         ++_size;
@@ -124,7 +125,7 @@ public:
         node_ptr tmp = _begin;
         _begin = tmp->next;
 
-        delete tmp;
+        delete_node(tmp);
         --_size;
     }
 
@@ -153,6 +154,21 @@ public:
     }
 
 private:
+    template<typename ...Args>
+    node_ptr create_node(Args&& ...args) {
+        node_ptr result = _allocator.allocate(1);
+        _allocator.construct(result, args...);
+        return result;
+    }
+
+    void delete_node(node_ptr node) {
+        _allocator.destroy(node);
+        _allocator.deallocate(node, 1);
+    }
+
+private:
+    node_alloc _allocator;
+
     node_ptr _begin;
     node_ptr _end;
     std::size_t _size;

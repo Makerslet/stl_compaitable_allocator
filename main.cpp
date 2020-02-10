@@ -1,19 +1,20 @@
 #include "allocator.h"
 #include "custom_forward_list.h"
 #include <map>
+#include <vector>
 
 int main(int, char *[]) {
 
-    /*
-     std::map<int, int, std::less<int>,
-         preventive_allocator<std::pair<const int, int>, 10>> map;
+//     std::map<int, int, std::less<int>,
+//         preventive_allocator<std::pair<const int, int>, 10>> map;
 
-     for (int i = 0; i < 8; ++i) {
-         map[i] = i;
-         std::cout << std::endl;
-     }*/
+//     for (int i = 0; i < 8; ++i) {
+//         map[i] = i;
+//         std::cout << std::endl;
+//     }
 
-    custom_forward_list<int> cfl;
+
+    custom_forward_list<int, preventive_allocator<int, 5>> cfl;
     for(int i = 0; i < 10; ++i)
         cfl.push_front(i);
 
