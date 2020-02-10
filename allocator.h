@@ -10,31 +10,35 @@
 
 
 template<typename T, std::size_t Elem>
-struct logging_allocator {
-    using value_type = T;
+struct preventive_allocator {
 
+    // standard aliases
+    using value_type = T;
     using pointer = T*;
     using const_pointer = const T*;
     using reference = T&;
     using const_reference = const T&;
 
+    // user's aliases
+    using chunk = pointer;
+
     template<typename U>
     struct rebind {
-        using other = logging_allocator<U, Elem>;
+        using other = preventive_allocator<U, Elem>;
     };
 
-    logging_allocator() : _current(0) {
+    preventive_allocator() : _current(0) {
         _chunks.push_back(allocate_chunk());
     }
 
-    ~logging_allocator() {
+    ~preventive_allocator() {
         for(chunk ch : _chunks)
             deallocate_chunk(ch);
     }
 
     // not implemented yet
     template<typename U, std::size_t E>
-    logging_allocator(const logging_allocator<U, E>&) {}
+    preventive_allocator(const preventive_allocator<U, E>&) {}
 
     T *allocate(std::size_t n) {
 
@@ -55,6 +59,7 @@ struct logging_allocator {
     }
 
     void deallocate(T *p, std::size_t n) {
+        (void)p; (void)n;
 #ifdef WITH_DEBUG_OUTPUT
         std::cout << "deallocate: [n  = " << n << "] " << std::endl;
         std::cout << __PRETTY_FUNCTION__ << "[n = " << n << "]" << std::endl;
@@ -68,7 +73,7 @@ struct logging_allocator {
         std::cout << __PRETTY_FUNCTION__ << std::endl;
 #endif
         new(p) U(std::forward<Args>(args)...);
-    };
+    }
 
     template<typename U>
     void destroy(U *p) {
@@ -79,8 +84,6 @@ struct logging_allocator {
         p->~U();
     }
 
-
-    using chunk = T*;
 private:
     chunk allocate_chunk() {
         chunk result = reinterpret_cast<T*>(std::malloc(sizeof(T) * Elem));
@@ -95,7 +98,6 @@ private:
     }
 
 private:
-    // из-за вектора пока что будет превентивное выделение памяти
     std::vector<chunk> _chunks;
 
     // индекс свободного элемента в текущем чанке
