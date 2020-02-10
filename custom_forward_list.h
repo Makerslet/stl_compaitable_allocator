@@ -145,11 +145,11 @@ public:
         return  iterator(_end);
     }
 
-    iterator cbegin() const {
+    const_iterator cbegin() const {
         return const_iterator(_begin);
     }
 
-    iterator cend() const {
+    const_iterator cend() const {
         return  const_iterator(_end);
     }
 
