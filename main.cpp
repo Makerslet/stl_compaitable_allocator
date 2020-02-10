@@ -3,28 +3,40 @@
 #include <map>
 #include <vector>
 
+std::size_t factorial(std::size_t value)
+{
+    std::size_t result = 1;
+
+    for(std::size_t i = 1; i <= value; ++i)
+        result *= i;
+
+    return  result;
+}
+
 int main(int, char *[]) {
 
-//     std::map<int, int, std::less<int>,
-//         preventive_allocator<std::pair<const int, int>, 10>> map;
+    std::map<std::size_t, std::size_t> default_alloc_map;
+    for(std::size_t i = 0; i < 10; ++i)
+        default_alloc_map[i] = factorial(i);
 
-//     for (int i = 0; i < 8; ++i) {
-//         map[i] = i;
-//         std::cout << std::endl;
-//     }
+    std::map<std::size_t, std::size_t, std::less<int>,
+            preventive_allocator<std::pair<std::size_t, std::size_t>, 10>> custom_alloc_map;
+    for(std::size_t i = 0; i < 10; ++i)
+        custom_alloc_map[i] = factorial(i);
 
+    for(auto it = custom_alloc_map.begin(); it != custom_alloc_map.end(); ++it)
+        std::cout << it->first << " " << it->second << std::endl;
 
-    custom_forward_list<int, preventive_allocator<int, 5>> cfl;
+    custom_forward_list<int> default_alloc_cfl;
     for(int i = 0; i < 10; ++i)
-        cfl.push_front(i);
+        default_alloc_cfl.push_front(i);
 
-    for(const int& value : cfl)
-        std::cout << value << " " << cfl.size() << std::endl;
+    custom_forward_list<int, preventive_allocator<int, 10>> custom_alloc_cfl;
+    for(int i = 0; i < 10; ++i)
+        custom_alloc_cfl.push_front(i);
 
-    while(!cfl.empty()) {
-        cfl.pop_front();
-        std::cout << cfl.size() << std::endl;
-    }
+    for(const int& value : custom_alloc_cfl)
+        std::cout << value << std::endl;
 
     return 0;
 }
