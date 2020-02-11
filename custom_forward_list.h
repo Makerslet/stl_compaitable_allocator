@@ -20,76 +20,45 @@ class custom_forward_list {
 
 public:
 
-    // TODO: solve const/non const versions
-    class iterator : public std::iterator<
+    template<bool is_const_iterator>
+    class iterator_impl : public std::iterator<
             std::forward_iterator_tag, T> {
 
-        using value_type = T;
-        using pointer_type = T*;
-        using reference_type = T&;
-    public:
+        using value_type = typename std::conditional<is_const_iterator, const T, T>::type;
+        using pointer_type = typename std::conditional<is_const_iterator, const T*, T*>::type;
+        using reference_type = typename std::conditional<is_const_iterator, const T&, T&>::type;
 
-        iterator(node_ptr node) : _current_node(node){
+    public:
+        iterator_impl(node_ptr node) : _current_node(node){
         }
-        iterator operator++() {
-            iterator tmp = *this;
+
+        iterator_impl operator++() {
+            iterator_impl tmp = *this;
             _current_node = _current_node->next;
             return tmp;
         }
-        iterator operator++(int) {
+        iterator_impl operator++(int) {
             _current_node = _current_node->next;
             return *this;
         }
-        T& operator*() {
+        reference_type operator*() {
             return _current_node->object;
         }
-        T* operator->() {
+        pointer_type operator->() {
             return &_current_node->object;
         }
-        bool operator==(const iterator& rhs) {
+        bool operator==(const iterator_impl& rhs) {
             return _current_node == rhs._current_node;
         }
-        bool operator!=(const iterator& rhs) {
+        bool operator!=(const iterator_impl& rhs) {
             return  _current_node != rhs._current_node;
         }
     private:
         node_ptr _current_node;
     };
 
-    class const_iterator : public std::iterator<
-            std::forward_iterator_tag, T> {
-
-        using value_type = const T;
-        using pointer_type = const T*;
-        using reference_type = const T&;
-    public:
-
-        const_iterator(node_ptr node) : _current_node(node){
-        }
-        iterator operator++() {
-            iterator tmp = *this;
-            _current_node = _current_node->next;
-            return tmp;
-        }
-        iterator operator++(int) {
-            _current_node = _current_node->next;
-            return *this;
-        }
-        T& operator*() {
-            return _current_node->object;
-        }
-        T* operator->() {
-            return &_current_node->object;
-        }
-        bool operator==(const iterator& rhs) {
-            return _current_node == rhs._current_node;
-        }
-        bool operator!=(const iterator& rhs) {
-            return  _current_node != rhs._current_node;
-        }
-    private:
-        node_ptr _current_node;
-    };
+    using iterator = iterator_impl<false>;
+    using const_iterator = iterator_impl<true>;
 
     custom_forward_list() :_size(0)  {
         node_ptr tmp = create_node();
