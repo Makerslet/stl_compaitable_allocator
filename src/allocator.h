@@ -6,7 +6,7 @@
 #include <vector>
 #include <bitset>
 
-#define WITH_DEBUG_OUTPUT
+//#define WITH_DEBUG_OUTPUT
 
 
 template<typename T, std::size_t Elem>
