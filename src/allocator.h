@@ -41,6 +41,8 @@ struct preventive_allocator {
     preventive_allocator(const preventive_allocator<U, E>&) {}
 
     T *allocate(std::size_t n) {
+        // not extended for allocation more than 1 element for 1 time
+        (void)n;
 
 #ifdef WITH_DEBUG_OUTPUT
         std::cout << "allocate: [n = " << n << "]" << std::endl;
