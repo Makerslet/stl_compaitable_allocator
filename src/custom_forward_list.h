@@ -67,8 +67,8 @@ public:
     }
 
     T& front() {
-        return static_cast<T&>(
-                    const_cast<custom_forward_list<T>*>(this)->front());
+        return const_cast<T&>(
+                    const_cast<const custom_forward_list<T>*>(this)->front());
     }
 
     const T& front() const {
@@ -88,6 +88,7 @@ public:
     }
 
     void pop_front() {
+        // возможно стоит кидать исключение
         if(empty())
             return;
 
