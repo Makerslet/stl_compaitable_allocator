@@ -66,6 +66,18 @@ public:
         _end = tmp;
     }
 
+    ~custom_forward_list() {
+        while(_begin != _end)
+        {
+            node_ptr tmp = _begin;
+            _begin = _begin->next;
+
+            delete_node(tmp);
+        }
+
+        delete_node(_begin);
+    }
+
     T& front() {
         return const_cast<T&>(
                     const_cast<const custom_forward_list<T>*>(this)->front());
