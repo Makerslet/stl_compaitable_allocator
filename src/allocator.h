@@ -4,7 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <vector>
-#include <bitset>
+#include <cassert>
 
 //#define WITH_DEBUG_OUTPUT
 
@@ -28,7 +28,6 @@ struct preventive_allocator {
     };
 
     preventive_allocator() : _current(0) {
-        _chunks.push_back(allocate_chunk());
     }
 
     ~preventive_allocator() {
@@ -41,8 +40,11 @@ struct preventive_allocator {
     preventive_allocator(const preventive_allocator<U, E>&) {}
 
     T *allocate(std::size_t n) {
-        // not extended for allocation more than 1 element for 1 time
-        (void)n;
+        // пока умеем выделять только один блок
+        assert(n == 1);
+
+        if(_chunks.empty())
+            _chunks.push_back(allocate_chunk());
 
 #ifdef WITH_DEBUG_OUTPUT
         std::cout << "allocate: [n = " << n << "]" << std::endl;
@@ -60,8 +62,7 @@ struct preventive_allocator {
         return last_chunk + old_index;
     }
 
-    void deallocate(T *p, std::size_t n) {
-        (void)p; (void)n;
+    void deallocate(T*, std::size_t) {
 #ifdef WITH_DEBUG_OUTPUT
         std::cout << "deallocate: [n  = " << n << "] " << std::endl;
         std::cout << __PRETTY_FUNCTION__ << "[n = " << n << "]" << std::endl;

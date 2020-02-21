@@ -78,16 +78,17 @@ public:
         delete_node(_begin);
     }
 
+    custom_forward_list(const custom_forward_list& list){
+
+    }
+
+
     T& front() {
-        return const_cast<T&>(
-                    const_cast<const custom_forward_list<T>*>(this)->front());
+        return front_impl<false>();
     }
 
     const T& front() const {
-        if(empty())
-            throw std::range_error("custom_forward_list is epmty");
-
-        return _begin->object;
+        return front_impl<true>();
     }
 
     // TODO: implement move push front
@@ -100,9 +101,8 @@ public:
     }
 
     void pop_front() {
-        // возможно стоит кидать исключение
         if(empty())
-            return;
+            throw std::range_error("custom_forward_list is epmty");;
 
         node_ptr tmp = _begin;
         _begin = tmp->next;
@@ -136,6 +136,15 @@ public:
     }
 
 private:
+
+    template<bool is_const>
+    typename std::conditional<is_const, const T&, T&>::type front_impl() {
+        if(empty())
+            throw std::range_error("custom_forward_list is epmty");
+
+        return _begin->object;
+    }
+
     template<typename ...Args>
     node_ptr create_node(Args&& ...args) {
         node_ptr result = _allocator.allocate(1);
